@@ -5,7 +5,7 @@ package storageproof
 
 import (
 	"fmt"
-	os"
+	"os"
 	"time"
 
 	"github.com/cloudflare/circl/sign/mldsa/mldsa87"
