@@ -81,7 +81,7 @@ func LoadPlots(paths []string, verbose bool) (*PlotCollection, error) {
 	return pc, nil
 }
 
-func (pc *PlotCollection) LookUp(challengeHash []byte) ([]byte, int, *mldsa87.PrivateKey, error) {
+func (pc *PlotCollection) LookUp(challengeHash []byte) (*Solution, error) {
 	var bestMatch []byte
 	var bestDistance int = -1
 	var bestPlotPath string
@@ -89,7 +89,7 @@ func (pc *PlotCollection) LookUp(challengeHash []byte) ([]byte, int, *mldsa87.Pr
 
 	for plotPath, plotInfo := range pc.Plots {
 		for _, keyEntry := range plotInfo.KeyEntries {
-			distance := hammingDistance(challengeHash, keyEntry.Hash[:])
+			distance := HammingDistance(challengeHash, keyEntry.Hash[:])
 			if bestDistance == -1 || distance < bestDistance {
 				bestDistance = distance
 				bestMatch = keyEntry.Hash[:]
@@ -100,48 +100,33 @@ func (pc *PlotCollection) LookUp(challengeHash []byte) ([]byte, int, *mldsa87.Pr
 	}
 
 	if bestDistance == -1 {
-		return nil, -1, nil, nil // No plots loaded
+		return nil, nil // No plots loaded
 	}
 
 	// Now retrieve the private key
 	file, err := os.Open(bestPlotPath)
 	if err != nil {
-		return nil, -1, nil, err
+		return nil, err
 	}
 	defer file.Close()
 
 	_, err = file.Seek(int64(bestKeyEntry.Offset), 0)
 	if err != nil {
-		return nil, -1, nil, err
+		return nil, err
 	}
 
 	skBytes := make([]byte, mldsa87.PrivateKeySize)
 	_, err = file.Read(skBytes)
 	if err != nil {
-		return nil, -1, nil, err
+		return nil, err
 	}
 
 	sk := &mldsa87.PrivateKey{}
 	err = sk.UnmarshalBinary(skBytes)
 	if err != nil {
-		return nil, -1, nil, err
+		return nil, err
 	}
 
-	return bestMatch, bestDistance, sk, nil
+	return NewSolution(bestMatch, bestDistance, sk)
 }
 
-func hammingDistance(a, b []byte) int {
-	if len(a) != len(b) {
-		return -1 // Or handle error appropriately
-	}
-
-	distance := 0
-	for i := range a {
-		xor := a[i] ^ b[i]
-		for xor > 0 {
-			distance++
-			xor &= xor - 1
-		}
-	}
-	return distance
-}

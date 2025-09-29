@@ -4,6 +4,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/lpreimesberger/plotlib/pkg/storageproof"
@@ -12,17 +13,30 @@ import (
 
 // verifyCmd represents the verify command
 var verifyCmd = &cobra.Command{
-	Use:   "verify [filePath]",
-	Short: "Verifies a plot file.",
-	Long:  `Verifies a plot file by checking the header and all the keys.`,
+	Use:   "verify [solution]",
+	Short: "Verifies a storage proof solution.",
+	Long:  `Verifies a storage proof solution provided as a JSON string.`,
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		filePath := args[0]
+		solutionJSON := args[0]
 
-		err := storageproof.Verify(filePath, verbose)
+		var solution storageproof.Solution
+		err := json.Unmarshal([]byte(solutionJSON), &solution)
 		if err != nil {
-			fmt.Printf("Error verifying: %s\n", err)
+			fmt.Printf("Error unmarshalling solution: %s\n", err)
 			return
+		}
+
+		valid, err := solution.Verify()
+		if err != nil {
+			fmt.Printf("Error verifying solution: %s\n", err)
+			return
+		}
+
+		if valid {
+			fmt.Println("Solution is valid")
+		} else {
+			fmt.Println("Solution is invalid")
 		}
 	},
 }

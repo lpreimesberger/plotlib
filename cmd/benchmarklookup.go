@@ -46,7 +46,7 @@ and looking them up in the plot files.`,
 		startTime := time.Now()
 
 		for i := 0; i < numLookups; i++ {
-			_, _, _, err := pc.LookUp(randomHashes[i])
+			_, err := pc.LookUp(randomHashes[i])
 			if err != nil {
 				fmt.Printf("Error looking up hash: %s\n", err)
 				// We continue the benchmark even if one lookup fails

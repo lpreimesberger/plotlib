@@ -23,13 +23,13 @@ plotlib plot [kValue] [destDir]
 
 ### `verify`
 
-Verifies a plot file.
+Verifies a storage proof solution.
 
 ```bash
-plotlib verify [filePath]
+plotlib verify [solution]
 ```
 
-*   `filePath`: The path to the plot file.
+*   `solution`: A JSON string representing the solution.
 
 ### `load`
 
@@ -81,20 +81,54 @@ func main() {
 }
 ```
 
-### `Verify`
+### `Solution`
+
+The `Solution` struct represents a solution to a storage proof challenge.
+
+```go
+// Solution is part of the block
+type Solution struct {
+	Hash      string `json:"hash"`
+	Distance  int    `json:"distance"`
+	PublicKey string `json:"public_key"` // public key of the proof, not the issuer
+	Signature string `json:"signature"`
+}
+```
+
+### `BestMatch`
 
 ```go
 package main
 
 import (
+	"fmt"
+
 	"github.com/lpreimesberger/plotlib/pkg/storageproof"
 )
 
 func main() {
-	err := storageproof.Verify("./plots/sp1...plot", true)
-	if err != nil {
-		panic(err)
-	}
+	// solutions is a []*storageproof.Solution
+	bestSolution := storageproof.BestMatch(solutions)
+	fmt.Printf("Best solution hash: %s\n", bestSolution.Hash)
+}
+```
+
+### `HammingDistance`
+
+```go
+package main
+
+import (
+	"fmt"
+
+	"github.com/lpreimesberger/plotlib/pkg/storageproof"
+)
+
+func main() {
+	a := []byte("hello")
+	b := []byte("world")
+	distance := storageproof.HammingDistance(a, b)
+	fmt.Printf("Hamming distance: %d\n", distance)
 }
 ```
 
@@ -136,15 +170,16 @@ func main() {
 	}
 
 	challengeHash := []byte("some 32-byte hash")
-	match, distance, sk, err := pc.LookUp(challengeHash)
+	solution, err := pc.LookUp(challengeHash)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Printf("Best match: %x\n", match)
-	fmt.Printf("Distance: %d\n", distance)
+	fmt.Printf("Best match: %s\n", solution.Hash)
+	fmt.Printf("Distance: %d\n", solution.Distance)
 }
 ```
+
 
 ## Plot File Format
 

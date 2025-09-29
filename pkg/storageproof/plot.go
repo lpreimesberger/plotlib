@@ -126,3 +126,20 @@ func Plot(destDir string, kValue uint32, verbose bool) error {
 
 	return nil
 }
+
+// HammingDistance calculates the hamming distance between two byte slices
+func HammingDistance(a, b []byte) int {
+	if len(a) != len(b) {
+		return -1 // Or handle error appropriately
+	}
+
+	distance := 0
+	for i := range a {
+		xor := a[i] ^ b[i]
+		for xor > 0 {
+			distance++
+			xor &= xor - 1
+		}
+	}
+	return distance
+}
