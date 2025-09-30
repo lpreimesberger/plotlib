@@ -17,7 +17,7 @@ import (
 var lookupCmd = &cobra.Command{
 	Use:   "lookup [paths] [hash]",
 	Short: "Looks up a hash in the plot files.",
-	Long: `Looks up a hash in the plot files. 
+	Long: `Looks up a hash in the plot files.
 If a hash is not provided, it will run a test suite.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) < 1 {
@@ -79,18 +79,18 @@ If a hash is not provided, it will run a test suite.`,
 			copy(nearMissHash, knownHash)
 			nearMissHash[0] ^= 0x01 // Flip a bit
 			solution, err = pc.LookUp(nearMissHash)
-	if err != nil {
-		fmt.Printf("Error looking up hash: %s\n", err)
-	} else {
-		fmt.Printf("Looking up: %x\n", nearMissHash)
-		fmt.Printf("Best match: %s\n", solution.Hash)
-		fmt.Printf("Distance: %d\n", solution.Distance)
-	}
+			if err != nil {
+				fmt.Printf("Error looking up hash: %s\n", err)
+			} else {
+				fmt.Printf("Looking up: %x\n", nearMissHash)
+				fmt.Printf("Best match: %s\n", solution.Hash)
+				fmt.Printf("Distance: %d\n", solution.Distance)
+			}
 
 			// Complete miss case
 			fmt.Println("\n--- Complete Miss Case ---")
 			randomHash := make([]byte, 32)
-			rand.Read(randomHash)
+			_, _ = rand.Read(randomHash)
 			solution, err = pc.LookUp(randomHash)
 			if err != nil {
 				fmt.Printf("Error looking up hash: %s\n", err)

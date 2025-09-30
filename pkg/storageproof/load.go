@@ -27,7 +27,7 @@ func LoadPlots(paths []string, verbose bool) (*PlotCollection, error) {
 	}
 
 	for _, path := range paths {
-		filepath.Walk(path, func(filePath string, info os.FileInfo, err error) error {
+		_ = filepath.Walk(path, func(filePath string, info os.FileInfo, err error) error {
 			if err != nil {
 				return err
 			}
@@ -41,7 +41,9 @@ func LoadPlots(paths []string, verbose bool) (*PlotCollection, error) {
 				if err != nil {
 					return err
 				}
-				defer file.Close()
+				defer func(file *os.File) {
+					_ = file.Close()
+				}(file)
 
 				headerBytes := make([]byte, 40)
 				_, err = file.Read(headerBytes)
@@ -83,7 +85,7 @@ func LoadPlots(paths []string, verbose bool) (*PlotCollection, error) {
 
 func (pc *PlotCollection) LookUp(challengeHash []byte) (*Solution, error) {
 	var bestMatch []byte
-	var bestDistance int = -1
+	var bestDistance = -1
 	var bestPlotPath string
 	var bestKeyEntry KeyEntry
 
@@ -108,7 +110,9 @@ func (pc *PlotCollection) LookUp(challengeHash []byte) (*Solution, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
+	defer func(file *os.File) {
+		_ = file.Close()
+	}(file)
 
 	_, err = file.Seek(int64(bestKeyEntry.Offset), 0)
 	if err != nil {
@@ -129,4 +133,3 @@ func (pc *PlotCollection) LookUp(challengeHash []byte) (*Solution, error) {
 
 	return NewSolution(bestMatch, bestDistance, sk)
 }
-

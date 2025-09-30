@@ -17,7 +17,7 @@ import (
 var benchmarklookupCmd = &cobra.Command{
 	Use:   "benchmarklookup [paths]",
 	Short: "Benchmarks the lookup function.",
-	Long: `Benchmarks the lookup function by generating 1024 random hashes 
+	Long: `Benchmarks the lookup function by generating 1024 random hashes
 and looking them up in the plot files.`,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -40,7 +40,7 @@ and looking them up in the plot files.`,
 		randomHashes := make([][]byte, numLookups)
 		for i := 0; i < numLookups; i++ {
 			randomHashes[i] = make([]byte, 32)
-			rand.Read(randomHashes[i])
+			_, _ = rand.Read(randomHashes[i])
 		}
 
 		startTime := time.Now()

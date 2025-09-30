@@ -6,6 +6,7 @@ package storageproof
 import (
 	"crypto/rand"
 	"fmt"
+	"io"
 	"os"
 	"time"
 
@@ -29,7 +30,9 @@ func Plot(destDir string, kValue uint32, verbose bool) error {
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer func(file *os.File) {
+		_ = file.Close()
+	}(file)
 
 	// Write a placeholder for the header
 	h := &Header{
@@ -75,7 +78,7 @@ func Plot(destDir string, kValue uint32, verbose bool) error {
 		}
 
 		// Get the current offset
-		offset, err := file.Seek(0, os.SEEK_CUR)
+		offset, err := file.Seek(0, io.SeekCurrent)
 		if err != nil {
 			return err
 		}
@@ -103,7 +106,7 @@ func Plot(destDir string, kValue uint32, verbose bool) error {
 	}
 
 	// Go back to the beginning of the file and write the final header and key entries
-	_, err = file.Seek(0, os.SEEK_SET)
+	_, err = file.Seek(0, io.SeekStart)
 	if err != nil {
 		return err
 	}
