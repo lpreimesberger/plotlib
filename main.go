@@ -2,8 +2,11 @@
 // Copyright 2025 Caprica LLC
 package main
 
-import "github.com/lpreimesberger/plotlib/cmd"
+import (
+	"github.com/lpreimesberger/plotlib/cmd"
+)
 
 func main() {
+
 	cmd.Execute()
 }
